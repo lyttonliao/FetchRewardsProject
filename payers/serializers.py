@@ -7,4 +7,4 @@ class PayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payer
-        fields = ('company',)
+        fields = ('id', 'company',)
