@@ -49,20 +49,25 @@ class TransactionsList(APIView):
             user_id = request.data['user']
             payer_id = request.data['payer']
             points = request.data['points']
-            user = get_user_model().objects.all().filter(id=user_id)[0]
-            print(user)
-            user.points = user.points + points
-            user.save()
-            if points < 0:
-                i = 0
-                transactions = Transaction.objects.all().filter(user_id=user).filter(payer_id=payer_id).order_by('timestamp')
-                while points > 0:
-                    transaction_points = transactions[i].points
-                    if transaction_points > 0:
-                        min_deduction = min(points, transaction_points)
-                        transactions[i].points = transaction_points - min_deduction
-                        transactions[i].save()
-                        points, i = points - min_deduction, i + 1
+            user = get_user_model().objects.get(id=user_id)
+            new_total = user.points + points
+            if new_total >= 0:
+                user.points = user.points + points
+                user.save(update_fields=['points'])
+
+                if points < 0:
+                    i, points = 0, abs(points)
+                    transactions = Transaction.objects.all().filter(user=user_id).filter(payer=payer_id).order_by('timestamp')
+                    for transaction in transactions:
+                        if points == 0:
+                            break
+                        if transaction.points > 0:
+                            min_deduction = min(points, transaction.points)
+                            transaction.points -= min_deduction
+                            transaction.save(update_fields=['points'])
+                            points, i = points - min_deduction, i + 1
+            else:
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
