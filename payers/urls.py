@@ -1,11 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from users import views
+from payers import views
 
-app_name = 'user'
+app_name = 'payer'
 
 router = DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'payers', views.PayerViewSet)
 
 
 urlpatterns = [
