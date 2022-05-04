@@ -6,8 +6,3 @@ app_name = 'payer'
 
 router = DefaultRouter()
 router.register(r'payers', views.PayerViewSet)
-
-
-urlpatterns = [
-    path('', include(router.urls))
-]
